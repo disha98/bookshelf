@@ -14,7 +14,7 @@ type FavoriteRow = {
   cover_url: string | null;
   user_id: string;
   created_at: string;
-  users: { first_name: string | null } | null;
+  users: { first_name: string | null }[] | { first_name: string | null } | null;
 };
 
 export default async function Home() {
@@ -133,7 +133,8 @@ export default async function Home() {
   const myFavorites: typeof communityBooks = [];
 
   for (const fav of (favorites ?? []) as FavoriteRow[]) {
-    const name = fav.users?.first_name ?? "Someone";
+    const usersData = Array.isArray(fav.users) ? fav.users[0] : fav.users;
+    const name = usersData?.first_name ?? "Someone";
     const existing = bookMap.get(fav.ol_key);
 
     if (existing) {
@@ -158,7 +159,7 @@ export default async function Home() {
   const recentlyAdded = (favorites ?? []).slice(0, 15).map((f: FavoriteRow) => ({
     olKey: f.ol_key, title: f.title, author: f.author,
     coverUrl: f.cover_url, count: 0,
-    names: [f.users?.first_name ?? "Someone"],
+    names: [(Array.isArray(f.users) ? f.users[0] : f.users)?.first_name ?? "Someone"],
   }));
 
   const totalFavs = favorites?.length ?? 0;
